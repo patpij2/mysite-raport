@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Raport konkurencji Meta Ads | mysite.ai
 
-## Getting Started
+Internal tool do generowania raportów o reklamach Meta w okolicy restauracji. Prosty UI: wpisujesz linki FB i opcjonalnie lokalizację, dostajesz raport z analizą błędów w reklamach, możesz pobrać raport jako HTML.
 
-First, run the development server:
+## Stack
+
+- Next.js (App Router), React, Tailwind CSS
+- shadcn/ui
+- Meta Ad Library API
+- Google Places API (Text Search)
+- OpenRouter (LLM – analiza reklam)
+
+## Uruchomienie
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Otwórz [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Zmienne środowiskowe
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Skopiuj `env.example` do `.env.local` i uzupełnij:
 
-## Learn More
+| Zmienna | Opis |
+|--------|------|
+| `GOOGLE_PLACES_API_KEY` | Klucz API z Google Cloud (Places API) |
+| `META_APP_ID` | ID aplikacji Meta for Developers |
+| `META_ACCESS_TOKEN` | Token do Meta Ad Library API |
+| `OPENROUTER_API_KEY` | Klucz z openrouter.ai |
 
-To learn more about Next.js, take a look at the following resources:
+## Użycie
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Wybierz **kraj** (np. PL, DE, GB).
+2. Wklej **linki do stron Facebook** (np. `https://fb.com/123456789`). Jeden link per linia. Używaj linków z numerycznym ID.
+3. Opcjonalnie: **lokalizacja** – adres lub zapytanie (np. „restauracje Warszawa”) do Google Places.
+4. Kliknij **Generuj raport**.
+5. Pobierz raport przyciskiem **Pobierz HTML**.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Ograniczenia
 
-## Deploy on Vercel
+- Meta Ad Library API zwraca reklamy tylko dla UK/UE (ostatni rok).
+- Linki FB muszą zawierać numeryczny Page ID (np. `fb.com/123456789`). Dla linków z username (np. `facebook.com/NazwaStrony`) użyj linku z Ad Library.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deploy na Vercel
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Ten projekt **nie używa Puppeteer ani Chrome**. Jeśli na Vercel widzisz błąd „Could not find Chrome” / „Analysis error”:
+  1. Upewnij się, że projekt na Vercel jest podłączony **do tego samego repo** (np. `mysite-raport`) i brancha (np. `main`).
+  2. W Vercel → Settings → General: **Clear Build Cache** i zrób **Redeploy**.
+  3. Sprawdź, czy w repo (na branchu z którego deployujesz) **nie ma** `puppeteer`, `puppeteer-core` ani żadnego kodu wywołującego Chrome.
+- Zmienne env: w Vercel → Settings → Environment Variables ustaw `META_ACCESS_TOKEN`, `OPENROUTER_API_KEY`, `GOOGLE_PLACES_API_KEY`.
+- Diagnostyka: po deployu wejdź na `https://twoja-domena.vercel.app/api/health` – zobaczysz, czy zmienne są ustawione.
