@@ -5,34 +5,11 @@ import type { ReportData } from "@/types/report";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { ReportView } from "@/components/report-view";
 
-const COUNTRIES = [
-  { value: "PL", label: "Polska (PL)" },
-  { value: "DE", label: "Niemcy (DE)" },
-  { value: "GB", label: "Wielka Brytania (GB)" },
-  { value: "FR", label: "Francja (FR)" },
-  { value: "IT", label: "Włochy (IT)" },
-  { value: "ES", label: "Hiszpania (ES)" },
-  { value: "NL", label: "Holandia (NL)" },
-  { value: "BE", label: "Belgia (BE)" },
-  { value: "AT", label: "Austria (AT)" },
-  { value: "PT", label: "Portugalia (PT)" },
-];
-
 export default function Home() {
-  const [country, setCountry] = useState("PL");
-  const [fbLinks, setFbLinks] = useState("");
-  const [location, setLocation] = useState("");
+  const [fbPage, setFbPage] = useState("");
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState<ReportData | null>(null);
 
@@ -44,9 +21,9 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          country,
-          fbLinks,
-          location: location.trim() || undefined,
+          country: "PL",
+          fbLinks: fbPage.trim(),
+          location: undefined,
         }),
       });
       const data = await res.json();
@@ -70,80 +47,45 @@ export default function Home() {
   }
 
   return (
-    <div className="container mx-auto max-w-2xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-semibold text-foreground">
-        Raport konkurencji Meta Ads
-      </h1>
-      <p className="mb-6 text-muted-foreground">
-        Wprowadź linki do stron Facebook i opcjonalnie lokalizację. Raport pokaże
-        reklamy Meta oraz analizę błędów.
-      </p>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Parametry raportu</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="country">Kraj</Label>
-            <Select value={country} onValueChange={setCountry}>
-              <SelectTrigger id="country">
-                <SelectValue placeholder="Wybierz kraj" />
-              </SelectTrigger>
-              <SelectContent>
-                {COUNTRIES.map((c) => (
-                  <SelectItem key={c.value} value={c.value}>
-                    {c.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">
-              Meta Ad Library zwraca reklamy dostarczane w wybranym kraju (UE/UK).
-            </p>
+    <div className="min-h-screen bg-muted/30 flex flex-col items-center px-4 py-12">
+      <Card className="w-full max-w-md shadow-sm">
+        <CardContent className="pt-8 pb-8 px-6 space-y-6">
+          <div>
+            <h1 className="text-2xl font-semibold text-foreground mb-2">
+              Raport Social Media dla restauracji
+            </h1>
+            <span className="inline-block bg-primary text-primary-foreground text-sm font-medium px-3 py-1 rounded">
+              Eurogastro 2026
+            </span>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="fbLinks">Linki do stron Facebook</Label>
-            <Textarea
-              id="fbLinks"
-              placeholder="https://fb.com/123456789&#10;https://facebook.com/987654321"
-              value={fbLinks}
-              onChange={(e) => setFbLinks(e.target.value)}
-              rows={4}
-              className="font-mono text-sm"
-            />
-            <p className="text-xs text-muted-foreground">
-              Jeden link per linia. Działają linki z nazwą (np. facebook.com/Fedde.Restauracja.Polska)
-              oraz z numerem ID (fb.com/123456789). Wymaga META_ACCESS_TOKEN w .env.local.
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="location">Lokalizacja (opcjonalnie)</Label>
+            <Label htmlFor="fbPage">Strona Facebook restauracji</Label>
             <Input
-              id="location"
-              placeholder="np. restauracje Warszawa, Marszałkowska"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              id="fbPage"
+              placeholder="np. facebook.com/restauracja"
+              value={fbPage}
+              onChange={(e) => setFbPage(e.target.value)}
+              className="h-11"
             />
-            <p className="text-xs text-muted-foreground">
-              Adres lub zapytanie dla Google Places – lista restauracji w okolicy jako kontekst.
-            </p>
           </div>
 
           <Button
             onClick={handleGenerate}
             disabled={loading}
-            className="w-full"
+            className="w-full h-11 font-medium"
           >
             {loading ? "Generowanie…" : "Generuj raport"}
           </Button>
+
+          <p className="text-sm text-muted-foreground text-center">
+            Automatyczna analiza profilu i reklam - 30 sekund
+          </p>
         </CardContent>
       </Card>
 
       {report && (
-        <div className="mt-8">
+        <div className="w-full max-w-2xl mt-10 px-4">
           <ReportView report={report} />
         </div>
       )}
